@@ -59,6 +59,5 @@ Expected output:
 Checks passed.
 ```
 
-## AI Usage
 
-Microsoft Copilot was used to help explain concepts, review code, and assist with documentation. All submitted work was reviewed and tested before submission.
+
