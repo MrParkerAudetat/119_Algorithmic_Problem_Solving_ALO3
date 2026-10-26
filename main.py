@@ -32,6 +32,23 @@ def indexed_lookup(records, equipment_id):
             return record, inspected
     return None, inspected        
 
+def update_priority(registry, ticket_id, new_priority):
+    """Update the priority of a ticket in the registry and the original records list."""
+    if ticket_id not in registry:
+        return None
+    registry[ticket_id]["priority"] = new_priority;
+    return registry[ticket_id];
+
+def filter_by_category(registry, category):
+    "Return a list of tickets in the registry that match the given category."
+    if category not in SUPPORTED_CATEGORIES:
+        return None
+    matching_tickets = []
+    for ticket_id, ticket in registry.items():
+        if ticket.get("category") == category:
+            matching_tickets.append(ticket)
+    return matching_tickets
+
 from console_style import print_color
 
 
