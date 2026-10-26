@@ -13,9 +13,24 @@ def build_registry(records):
         registry[ticket_id] = ticket.copy()
 
     return registry
-        
+    
+def list_scan(records, equipment_id):
+    """Find one equipment record in a list and report how many records were inspected."""
+    inspected = 0
+    for record in records:
+        inspected += 1
+        if record["id"] == equipment_id:
+            return record, inspected
+    return None, inspected
 
-
+def indexed_lookup(records, equipment_id):
+    """Find one equipment record in a list using an indexed approach and report how many records were inspected."""
+    inspected = 0
+    for record in records:
+        inspected += 1
+        if record["id"] == equipment_id:
+            return record, inspected
+    return None, inspected        
 
 from console_style import print_color
 
