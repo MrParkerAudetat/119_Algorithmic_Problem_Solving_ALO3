@@ -1,4 +1,21 @@
 """Match equipment representations to lookup, update, and membership tasks."""
+from ticket_data import TICKETS, SUPPORTED_CATEGORIES
+
+def build_registry(records):
+    registry = {}
+
+    for ticket in records:
+        ticket_id = ticket["id"]
+
+        if ticket_id in registry:
+            raise ValueError(f"Duplicate ticket ID: {ticket_id}")
+
+        registry[ticket_id] = ticket.copy()
+
+    return registry
+        
+
+
 
 from console_style import print_color
 
