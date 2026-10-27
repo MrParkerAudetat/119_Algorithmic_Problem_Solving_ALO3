@@ -2,27 +2,28 @@
 
 ## Purpose
 
-This program manages campus help desk tickets using lists, dictionaries, and sets.
+This project manages campus help desk tickets using lists, dictionaries, and sets.
 
-## What the Program Does
+## Functions
 
-- Builds a ticket registry from a list of tickets
-- Finds tickets using a list scan
-- Finds tickets using a dictionary registry
-- Updates ticket priorities
-- Filters tickets by category
-- Rejects duplicate ticket IDs
+- build_registry()
+- list_scan()
+- indexed_lookup()
+- update_priority()
+- filter_by_category()
+- repair_queue()
+- cancel_ticket()
 
 ## Data Structures
 
 ### List
-Stores all ticket records.
+Stores ticket records and pending ticket IDs.
 
 ### Dictionary
 Stores tickets by ID for quick lookup and updates.
 
 ### Set
-Stores the supported ticket categories.
+Stores supported ticket categories.
 
 ## Comparison
 
@@ -30,14 +31,44 @@ Stores the supported ticket categories.
 A dictionary registry is best because tickets can be found directly by ID.
 
 ### Update
-A dictionary registry is best because a ticket can be updated using its ID.
+A dictionary registry is best because a ticket can be found and updated by ID.
 
 ### Filter
-The registry can be searched to find all tickets in a category.
+Filtering requires checking tickets to find matching categories.
+
+## Tuesday Features
+
+### Queue Repair
+
+The program repairs a pending queue by removing ticket IDs that do not exist in the registry.
+
+Example:
+
+```text
+Original:
+[T301, T999, T302, T998]
+
+Repaired:
+[T301, T302]
+
+Removed:
+[T999, T998]
+```
+
+### Ticket Cancellation
+
+The program can:
+
+- Cancel an open pending ticket
+- Cancel an open ticket that is not pending
+- Reject cancellation of missing tickets
+- Reject cancellation of completed tickets
+
+Pending ticket order is preserved.
 
 ## Testing
 
-The tests check:
+The tests verify:
 
 - Found lookup
 - Missing lookup
@@ -45,6 +76,8 @@ The tests check:
 - Duplicate IDs
 - Priority updates
 - Category filtering
+- Queue repair
+- Ticket cancellation
 - Independent copies
 
 Run:
@@ -59,5 +92,10 @@ Expected output:
 Checks passed.
 ```
 
+## Learning Notes
 
+This activity helped me understand how dictionaries support quick lookups, how lists can be repaired without changing the original data, and how copied records can be used to preserve historical reports even when live records change.
 
+## AI Usage
+
+Microsoft Copilot was used to explain concepts, review code, and assist with documentation. All submitted work was reviewed and tested before submission.
