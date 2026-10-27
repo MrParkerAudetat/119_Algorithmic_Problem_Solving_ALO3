@@ -1,4 +1,4 @@
-"""Match equipment representations to lookup, update, and membership tasks."""
+"""Match ticket representations to lookup, update, and membership tasks."""
 from ticket_data import TICKETS, SUPPORTED_CATEGORIES
 
 def build_registry(records):
@@ -14,21 +14,21 @@ def build_registry(records):
 
     return registry
     
-def list_scan(records, equipment_id):
-    """Find one equipment record in a list and report how many records were inspected."""
+def list_scan(records, ticket_id):
+    """Find one ticket record in a list and report how many records were inspected."""
     inspected = 0
     for record in records:
         inspected += 1
-        if record["id"] == equipment_id:
+        if record["id"] == ticket_id:
             return record, inspected
     return None, inspected
 
-def indexed_lookup(records, equipment_id):
-    """Find one equipment record in a list using an indexed approach and report how many records were inspected."""
+def indexed_lookup(records, ticket_id):
+    """Find one ticket record in a list using an indexed approach and report how many records were inspected."""
     inspected = 0
     for record in records:
         inspected += 1
-        if record["id"] == equipment_id:
+        if record["id"] == ticket_id:
             return record, inspected
     return None, inspected        
 
@@ -53,29 +53,29 @@ from console_style import print_color
 
 
 def build_index(records):
-    """Index independent flat record copies, rejecting duplicate equipment IDs."""
+    """Index independent flat record copies, rejecting duplicate ticket IDs."""
     index = {}
     for record in records:
-        equipment_id = record["id"]
-        if equipment_id in index:
-            raise ValueError(f"duplicate ID: {equipment_id}")
+        ticket_id = record["id"]
+        if ticket_id in index:
+            raise ValueError(f"duplicate ID: {ticket_id}")
         copied_record = record.copy()
-        index[equipment_id] = copied_record
+        index[ticket_id] = copied_record
     return index
 
 
-def scan_lookup(records, equipment_id):
-    """Find one equipment record and report how many records were inspected."""
+def scan_lookup(records, ticket_id):
+    """Find one ticket record and report how many records were inspected."""
     inspected = 0
     for record in records:
         inspected += 1
-        if record["id"] == equipment_id:
+        if record["id"] == ticket_id:
             return record, inspected
     return None, inspected
 
 
 def fixture():
-    """Provide a small equipment inventory with a repeated equipment type."""
+    """Provide a small ticket inventory with a repeated ticket type."""
     return [
         {"id": "E01", "type": "laptop", "available": True},
         {"id": "E02", "type": "tablet", "available": True},
@@ -84,23 +84,23 @@ def fixture():
 
 
 def available_ids(index):
-    """Collect the IDs of equipment currently available in the index."""
+    """Collect the IDs of ticket currently available in the index."""
     # Original compact selection, kept as an optional reading comparison:
     # [key for key, row in index.items() if row["available"]]
     # items() supplies an ID and its record together. The loop below retrieves
     # that same record explicitly, checks availability, and collects the same ID.
     available = []
-    for equipment_id in index:
-        record = index[equipment_id]
+    for ticket_id in index:
+        record = index[ticket_id]
         if record["available"]:
-            available.append(equipment_id)
+            available.append(ticket_id)
     return available
 
 
 def display_record(record):
-    """Present an equipment result without exposing dictionary notation."""
+    """Present an ticket result without exposing dictionary notation."""
     if record is None:
-        print_color("  No equipment found for that ID.", "caution")
+        print_color("  No ticket found for that ID.", "caution")
         return
     if record["available"]:
         status = "Ready to borrow"
@@ -110,14 +110,14 @@ def display_record(record):
 
 
 def main():
-    """Compare finding equipment, tracking unique types, and filtering availability."""
+    """Compare finding ticket, tracking unique types, and filtering availability."""
     rows = fixture()
     index = build_index(rows)
-    # A set keeps each equipment type once, even when several records share it.
+    # A set keeps each ticket type once, even when several records share it.
     types = {row["type"] for row in rows}
 
-    print_color("EQUIPMENT LOAN DESK", "heading")
-    print("Find equipment E03")
+    print_color("ticket LOAN DESK", "heading")
+    print("Find ticket E03")
     found_record, inspected = scan_lookup(rows, "E03")
     print("List search:")
     display_record(found_record)
@@ -128,9 +128,9 @@ def main():
     else:
         display_record(None)
 
-    print_color("\nEquipment types we carry", "heading")
-    for equipment_type in sorted(types):
-        print(f"  {equipment_type.title()}")
+    print_color("\nticket types we carry", "heading")
+    for ticket_type in sorted(types):
+        print(f"  {ticket_type.title()}")
     if "camera" in types:
         print("Camera requests: this type is in our inventory.")
     else:
@@ -147,9 +147,9 @@ def main():
     print_color("\nReady to borrow now", "heading")
     ready_ids = available_ids(index)
     if not ready_ids:
-        print("  No equipment is ready to borrow.")
-    for equipment_id in ready_ids:
-        display_record(index[equipment_id])
+        print("  No ticket is ready to borrow.")
+    for ticket_id in ready_ids:
+        display_record(index[ticket_id])
 
     duplicate_rows = rows.copy()
     duplicate_record = rows[0].copy()
@@ -157,7 +157,7 @@ def main():
     try:
         build_index(duplicate_rows)
     except ValueError:
-        print_color("\nNew record not added: equipment ID E01 is already in use.", "caution")
+        print_color("\nNew record not added: ticket ID E01 is already in use.", "caution")
 
 
 if __name__ == "__main__":
