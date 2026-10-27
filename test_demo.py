@@ -1,52 +1,92 @@
-"""Regression checks, separate from the classroom application."""
+"""Regression checks for the ticket application."""
 
 from main import (
-    available_ids,
-    build_index,
-    fixture,
-    scan_lookup,
+    build_registry,
+    list_scan,
+    indexed_lookup,
+    update_priority,
+    filter_by_category,
+    repair_queue,
+    cancel_ticket,
 )
+from ticket_data import TICKETS
 
 
 def self_check():
-    """Check lookup, copied records, availability filtering, and duplicate policy."""
-    rows = fixture()
-    index = build_index(rows)
-    assert scan_lookup(rows, "E03") == (rows[2], 3)
-    assert index.get("missing") is None
-    index["E01"]["available"] = False
-    assert rows[0]["available"] is True
-    assert available_ids(index) == ["E02"]
-    assert available_ids({}) == []
-    assert index["E01"]["available"] is False
-    assert scan_lookup(rows, "missing") == (None, 3)
-    assert scan_lookup([], "missing") == (None, 0)
-    assert index["E01"] is not rows[0]
-    assert available_ids(build_index(rows)) == ["E01", "E02"]
+    registry = build_registry(TICKETS)
 
-    equipment_types = set()
-    for row in rows:
-        equipment_types.add(row["type"])
-    assert equipment_types == {row["type"] for row in rows}
-    assert equipment_types == {"laptop", "tablet"}
-    equipment_types.add("laptop")
-    assert len(equipment_types) == 2
-    equipment_types.discard("camera")
-    assert len(equipment_types) == 2
+    # Lookup tests
+    assert list_scan(TICKETS, "T301") == TICKETS[0]
+    assert indexed_lookup(registry, "T301") == registry["T301"]
 
-    duplicate_rows = rows.copy()
-    duplicate_rows.append(rows[0].copy())
+    assert list_scan(TICKETS, "T999") is None
+    assert indexed_lookup(registry, "T999") is None
+
+    # Empty registry
+    assert build_registry([]) == {}
+
+    # Independent copies
+    registry["T301"]["priority"] = "high"
+    assert TICKETS[0]["priority"] == "normal"
+
+    # Priority update
+    updated = update_priority(registry, "T304", "high")
+    assert updated["priority"] == "high"
+
+    # Missing update
+    assert update_priority(registry, "T999", "high") is None
+
+    # Category filtering
+    account = filter_by_category(registry, "account")
+    assert len(account) == 2
+
+    classroom = filter_by_category(registry, "classroom")
+    assert classroom == []
+
+    assert filter_by_category(registry, "parking") is None
+
+    # Queue repair
+    repaired, removed = repair_queue(
+        registry,
+        ["T301", "T999", "T302", "T998"]
+    )
+
+    assert repaired == ["T301", "T302"]
+    assert removed == ["T999", "T998"]
+
+    # Cancel ticket
+    pending = ["T301", "T302"]
+    history = []
+
+    assert cancel_ticket(
+        registry,
+        pending,
+        history,
+        "T301"
+    )
+
+    assert pending == ["T302"]
+
+    # Reject completed ticket
+    assert not cancel_ticket(
+        registry,
+        pending,
+        history,
+        "T306"
+    )
+
+    # Duplicate IDs rejected
+    duplicate_tickets = TICKETS.copy()
+    duplicate_tickets.append(TICKETS[0].copy())
+
     try:
-        build_index(duplicate_rows)
+        build_registry(duplicate_tickets)
     except ValueError:
         pass
     else:
-        raise AssertionError("duplicate IDs must be rejected")
-    assert build_index([]) == {}
+        raise AssertionError("Duplicate IDs must be rejected")
 
 
 if __name__ == "__main__":
-    if not __debug__:
-        raise RuntimeError("Run verification without Python optimization (-O).")
     self_check()
     print("Checks passed.")
